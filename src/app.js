@@ -1,19 +1,21 @@
 const express = require("express");
 const connectDb = require("./config/db");
-const User = require("./models/user");
+const cookieParser = require("cookie-parser");
+const { userAuth } = require("./middleware/auth");
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
-app.post("/signup", async (req, res) => {
-  const user = new User(req.body);
-  try {
-    user.save();
-    res.status(201).send("user signed up succesfully");
-  } catch (err) {
-    res.status(401).send("Something went wrong");
-  }
-});
+const authRouter = require("./routes/auth");
+const profileRouter = require("./routes/profile");
+const requestRouter = require("./routes/requests");
+const userRouter = require("./routes/user");
+
+app.use("/", authRouter);
+app.use("/", profileRouter);
+app.use("/", requestRouter);
+app.use("/", userRouter);
 
 connectDb()
   .then(() => {
